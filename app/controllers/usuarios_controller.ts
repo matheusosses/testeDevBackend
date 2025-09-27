@@ -9,7 +9,7 @@ export default class UsuariosController {
         const per_page: number = 25
         
         try{
-            const usuarios = await Usuario.query().where('ativo', true).paginate(page, per_page)
+            const usuarios = await Usuario.query().preload('mensalidade').where('ativo', true).paginate(page, per_page)
             return response.ok(usuarios)
         } catch(error) {
             return response.internalServerError({message: 'Erro ao buscar usuários', error})
@@ -22,6 +22,12 @@ export default class UsuariosController {
             
             if(!body.cpf || !body.nome){
                 return response.badRequest('Dados inválidos para cadastro')
+            }
+
+            const user = await Usuario.query().where('cpf', body.cpf).first()
+            
+            if(user){
+                return response.badRequest('Já existe um usuário cadastrado com esse cpf')
             }
 
             await Usuario.create({nome: body.nome,

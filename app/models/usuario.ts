@@ -1,5 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
+import Mensalidade from './mensalidade.js'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+
 
 export default class Usuario extends BaseModel {
   @column({ isPrimary: true })
@@ -31,4 +34,9 @@ export default class Usuario extends BaseModel {
 
   @column.dateTime()
   public declare deletedAt: DateTime
+
+  @belongsTo(() => Mensalidade, {
+    foreignKey: 'id_mensalidade',
+  })
+  public declare mensalidade: BelongsTo<typeof Mensalidade>
 }
