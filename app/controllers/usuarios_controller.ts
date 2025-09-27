@@ -32,7 +32,7 @@ export default class UsuariosController {
 
             await Usuario.create({nome: body.nome,
                                             email: body.email,
-                                            id_mensalidade: body.id_mensalidade,
+                                            id_mensalidade: body.mensalidade,
                                             cpf: body.cpf,
                                             telefone: body.telefone})
             

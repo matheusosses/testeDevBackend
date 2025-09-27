@@ -16,6 +16,15 @@ export default class MensalidadesController {
         }
     }
 
+    public async list({response, request}: HttpContext) {
+        try {
+            const mensalidade = await Mensalidade.query().if(request.input('filter'), (query) => {query.whereILike('descricao', request.input('filter'))}).whereNull('deleted_at').limit(10)
+            return response.ok(mensalidade)
+        } catch (error) {
+           return response.internalServerError({message: 'Erro ao buscar mensalidades', error}) 
+        }
+    }
+
     public async create({response, request}: HttpContext){
         try{
             const body = request.body()
