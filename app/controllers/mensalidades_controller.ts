@@ -4,12 +4,12 @@ import { DateTime } from 'luxon'
 
 export default class MensalidadesController {
     
-    public async get({response}: HttpContext) {
-        const page: number = 1
-        const per_page: number = 25
-            
+    public async get({response, request}: HttpContext) {
+        const {page, rowsPerPage} = request.qs()
+        const defaultPagination = page ?? 1
+        const defaultLimit = rowsPerPage ?? 25
         try{
-            const mensalidade = await Mensalidade.query().whereNull('deleted_at').paginate(page, per_page)
+            const mensalidade = await Mensalidade.query().whereNull('deleted_at').paginate(defaultPagination, defaultLimit)
             return response.ok(mensalidade)
         } catch(error) {
              return response.internalServerError({message: 'Erro ao buscar mensalidades', error})
@@ -28,13 +28,14 @@ export default class MensalidadesController {
     public async create({response, request}: HttpContext){
         try{
             const body = request.body()
+            console.log(body)
             
-            if(!body.descricao || !body.valor || !body.data_validade){
+            if(!body.descricao || !body.valor || !body.dataValidade){
                 return response.badRequest('Dados inválidos para cadastro')
             }
 
             await Mensalidade.create({descricao: body.descricao,
-                                            data_validade: body.data_validade,
+                                            data_validade: body.dataValidade,
                                             valor: body.valor})
             
             return response.status(201)
@@ -55,7 +56,7 @@ export default class MensalidadesController {
             }
 
             mensalidade.valor = body.valor
-            mensalidade.data_validade = body.data_validade
+            mensalidade.data_validade = body.dataValidade
             await mensalidade.save()
 
             return response.status(204)

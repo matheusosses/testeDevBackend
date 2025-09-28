@@ -4,12 +4,13 @@ import { DateTime } from 'luxon'
 
 export default class UsuariosController {
 
-    public async get({response}: HttpContext) {
-        const page: number = 1
-        const per_page: number = 25
+    public async get({response, request}: HttpContext) {
+        const {page, rowsPerPage} = request.qs()
+        const defaultPagination = page ?? 1
+        const defaultLimit = rowsPerPage ?? 25
         
         try{
-            const usuarios = await Usuario.query().preload('mensalidade').where('ativo', true).paginate(page, per_page)
+            const usuarios = await Usuario.query().preload('mensalidade').where('ativo', true).paginate(defaultPagination, defaultLimit)
             return response.ok(usuarios)
         } catch(error) {
             return response.internalServerError({message: 'Erro ao buscar usuários', error})
@@ -56,6 +57,7 @@ export default class UsuariosController {
 
             user.email = body.email
             user.telefone = body.telefone
+            user.id_mensalidade = body.mensalidade
             await user.save()
 
             return response.status(204)
