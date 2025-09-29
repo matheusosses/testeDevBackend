@@ -33,7 +33,7 @@ export default class Usuario extends BaseModel {
   public declare updatedAt: DateTime
 
   @column.dateTime()
-  public declare deletedAt: DateTime
+  public declare deletedAt: DateTime | null
 
   @belongsTo(() => Mensalidade, {
     foreignKey: 'id_mensalidade',

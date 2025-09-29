@@ -5,11 +5,17 @@ import { DateTime } from 'luxon'
 export default class MensalidadesController {
     
     public async get({response, request}: HttpContext) {
-        const {page, rowsPerPage} = request.qs()
-        const defaultPagination = page ?? 1
-        const defaultLimit = rowsPerPage ?? 25
+        const {pagination, filter} = request.qs()
+        const defaultPagination = pagination.page ?? 1
+        const defaultLimit = pagination.rowsPerPage ?? 25
+        const defaultFilter = filter ?? ''
+
+
         try{
-            const mensalidade = await Mensalidade.query().whereNull('deleted_at').paginate(defaultPagination, defaultLimit)
+            const mensalidade = await Mensalidade.query()
+                .if(defaultFilter, (query) => {query.whereILike('descricao', `%${defaultFilter}%`)})
+                .whereNull('deleted_at')
+                .paginate(defaultPagination, defaultLimit)
             return response.ok(mensalidade)
         } catch(error) {
              return response.internalServerError({message: 'Erro ao buscar mensalidades', error})
@@ -18,7 +24,9 @@ export default class MensalidadesController {
 
     public async list({response, request}: HttpContext) {
         try {
-            const mensalidade = await Mensalidade.query().if(request.input('filter'), (query) => {query.whereILike('descricao', request.input('filter'))}).whereNull('deleted_at').limit(10)
+            const mensalidade = await Mensalidade.query()
+                .if(request.input('filter'), (query) => {query.whereILike('descricao', request.input('filter'))})
+                .whereNull('deleted_at').limit(10)
             return response.ok(mensalidade)
         } catch (error) {
            return response.internalServerError({message: 'Erro ao buscar mensalidades', error}) 
